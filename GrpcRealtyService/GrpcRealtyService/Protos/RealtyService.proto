@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option csharp_namespace = "DowntownRealty";
+
+message  RealtyRequest{
+	int64 id = 1;
+}
+
+message  RealtyListRequest{
+	RealtyType type = 1;
+}
+
+message  UserRequest{
+	int64 id = 1;
+}
+
+message  RealtyResponse{
+	RealtyAd message = 1;
+}
+
+message  RealtyListResponse{
+	repeated RealtyAd Items = 1;
+}
+
+message  UserResponse{
+	User user = 1;
+}
+
+message User
+{
+	int32  id = 1;
+	string name = 2;
+	string email = 3;
+	string phone = 4;
+}
+
+message RealtyAd
+{
+	int32  id = 1;
+	RealtyType type =2;
+	string topic = 3;
+	string message  = 4;
+	NullableString address = 5;
+	string photo = 6;
+}
+
+enum RealtyType
+{
+	ANY = 0;
+    HOUSE = 1;
+    APARTMENTS = 2;
+    COMERCIAL = 3;
+}
+
+message NullableString {
+  string value = 1;
+  }
+
+  service DowntownRealty{
+    rpc GetRealtyById (RealtyRequest) returns (RealtyResponse);
+	rpc GetRealtyList (RealtyListRequest) returns (RealtyListResponse);
+	rpc GetUserById (UserRequest) returns (UserResponse);
+}

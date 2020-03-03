@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option csharp_namespace = "DowntownRealty";
+import "Protos/realtyServiceTypes.proto";
+
+message  RealtyRequest{
+	int64 id = 1;
+}
+
+message  RealtyListRequest{
+	RealtyType type = 1;
+}
+
+message  UserRequest{
+	int64 id = 1;
+}
+
+message  RealtyResponse{
+	RealtyAd message = 1;
+}
+
+message  RealtyListResponse{
+	repeated RealtyAd message = 1;
+}
+
+message  UserResponse{
+	User user = 1;
+}
+
+service DowntownRealty{
+    rpc GetRealtyById (RealtyRequest) returns (RealtyResponse);
+	rpc GetRealtyList (RealtyListRequest) returns (RealtyListResponse);
+	rpc GetUserById (UserRequest) returns (UserResponse);
+}
