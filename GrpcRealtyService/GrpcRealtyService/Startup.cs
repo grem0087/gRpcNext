@@ -19,7 +19,13 @@ namespace GrpcRealtyService
 
             services.AddMvc();
             services.AddGrpc();
-            services.AddGrpcWeb(o => o.GrpcWebEnabled = true);
+
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
             services.AddGrpcReflection();
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -27,7 +33,8 @@ namespace GrpcRealtyService
             {
                 options.Audience = "IssuerAudience";
                 options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
                     ValidateAudience = false,
                     ValidateIssuer = false,
                     ValidateActor = false,
@@ -48,21 +55,24 @@ namespace GrpcRealtyService
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseGrpcWeb();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors("MyPolicy");
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapGrpcService<Services.GrpcRealtyService>();
+                endpoints.MapGrpcService<Services.GrpcRealtyService>().EnableGrpcWeb();
                 endpoints.MapGrpcReflectionService();
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Just another one gRPC service.");
                 });
             });
+
         }
     }
 }

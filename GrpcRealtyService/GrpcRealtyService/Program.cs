@@ -27,36 +27,43 @@ namespace GrpcRealtyService
             });
             ILogger logger = loggerFactory.CreateLogger<Program>();
 
-            CreateHostBuilder(args, logger).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>();
 
-        public static IHostBuilder CreateHostBuilder(string[] args, ILogger logger) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                    webBuilder.ConfigureKestrel(kestrelServerOptions =>
-                    {
-                        kestrelServerOptions.ListenLocalhost(8080,
-                            listenOptions => listenOptions.Protocols = HttpProtocols.Http1);
+        });
 
-                        kestrelServerOptions.ListenLocalhost(50051,
-                            listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+        //public static IHostBuilder CreateHostBuilder(string[] args, ILogger logger) =>
+        //    Host.CreateDefaultBuilder(args)
+        //        .ConfigureWebHostDefaults(webBuilder =>
+        //        {
+        //            webBuilder.UseStartup<Startup>();
+        //            webBuilder.ConfigureKestrel(kestrelServerOptions =>
+        //            {
+        //kestrelServerOptions.ListenLocalhost(8080,
+        //   listenOptions => listenOptions.Protocols = HttpProtocols.Http1);
 
-                        var serverCert = new X509Certificate2("Certs/testCert.pfx", "test");
-                        //kestrelServerOptions.ConfigureHttpsDefaults(opt =>
-                        //{
-                        //    opt.ServerCertificate = serverCert;
-                        //    opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+        //kestrelServerOptions.ListenLocalhost(50051,
+        //                    listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
 
-                        //    // Verify that client certificate was issued by same CA as server certificate
-                        //    opt.ClientCertificateValidation = (certificate, chain, errors) =>
-                        //    {
-                        //        logger.LogWarning($"Certificate checking status: {certificate.Issuer == serverCert.Issuer}");
-                        //        return certificate.Issuer == serverCert.Issuer;
-                        //    };
-                        //});
-                    });
-                });
+        //                var serverCert = new X509Certificate2("Certs/testCert.pfx", "test");
+        //kestrelServerOptions.ConfigureHttpsDefaults(opt =>
+        //{
+        //    opt.ServerCertificate = serverCert;
+        //    opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+
+        //    // Verify that client certificate was issued by same CA as server certificate
+        //    opt.ClientCertificateValidation = (certificate, chain, errors) =>
+        //    {
+        //        logger.LogWarning($"Certificate checking status: {certificate.Issuer == serverCert.Issuer}");
+        //        return certificate.Issuer == serverCert.Issuer;
+        //    };
+        //});
+        //            });
+        //        });
     }
 }

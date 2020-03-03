@@ -19,22 +19,29 @@ namespace GrpcClient
 
         static void Main(string[] args)
         {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
             var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
             var certeficate = new X509Certificate2(basePath + "/Certs/testCert.pfx", "test");
 
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            //httpClientHandler.ClientCertificates.Add(certeficate);
+            httpClientHandler.ClientCertificates.Add(certeficate);
             var httpClient = new HttpClient(httpClientHandler);
-
-            var channel = GrpcChannel.ForAddress("http://localhost:50051/", new GrpcChannelOptions { HttpClient = httpClient });
+            var channel2 = GrpcChannel.ForAddress("http://localhost:50051");
+            var channel = GrpcChannel.ForAddress("https://localhost:5001", new GrpcChannelOptions { HttpClient = httpClient });
             var realtyServiceClient = new DowntownRealty.DowntownRealty.DowntownRealtyClient(channel);
 
             try
             {
-                //DoSimpleCall(realtyServiceClient);
+                DoSimpleCall(realtyServiceClient);
 
                 DoJwtCall(realtyServiceClient);
+            }
+            catch (RpcException ex)
+            {
+
+                throw;
             }
             catch (Exception ex)
             {

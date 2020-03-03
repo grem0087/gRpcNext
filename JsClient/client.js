@@ -1,11 +1,14 @@
-const {RealtyRequest, RealtyResponse} = require('./proto/DowntownRealty.js');
+const {RealtyRequest, RealtyResponse} = require('./proto/DowntownRealty_pb.js');
 const {DowntownRealtyClient} = require('./proto/DowntownRealty_grpc_web_pb.js');
 
-var realtyService = new DowntownRealtyClient('http://localhost:8080');
+var realtyServiceClient = new DowntownRealtyClient('https://localhost:5001');
+
+console.log(window.location.origin);
 
 var request = new RealtyRequest();
-request.setMessage(22);
+request.setId(22);
 
-realtyService.echo(request, {}, function(err, response) {
-  // ...
+realtyServiceClient.getRealtyById(request, {}, function(err, response) {
+  document.getElementById('inputWindow').innerHTML = response;
+    console.log(response);
 });
