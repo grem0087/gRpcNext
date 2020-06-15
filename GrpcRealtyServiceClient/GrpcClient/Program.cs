@@ -16,20 +16,13 @@ namespace GrpcClient
 {
     class Program
     {
-
+        const string ServerAddress = "https://localhost:5001";
         static void Main(string[] args)
         {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
-            var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
-            var certeficate = new X509Certificate2(basePath + "/Certs/testCert.pfx", "test");
+            GrpcChannel channel = CreateSimpleChannel();
 
-            var httpClientHandler = new HttpClientHandler();
-            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            httpClientHandler.ClientCertificates.Add(certeficate);
-            var httpClient = new HttpClient(httpClientHandler);
-            var channel2 = GrpcChannel.ForAddress("http://localhost:50051");
-            var channel = GrpcChannel.ForAddress("https://localhost:5001", new GrpcChannelOptions { HttpClient = httpClient });
             var realtyServiceClient = new DowntownRealty.DowntownRealty.DowntownRealtyClient(channel);
 
             try
@@ -63,6 +56,8 @@ namespace GrpcClient
         {
             var token = GenerateJwtToken();
             var headers = new Metadata();
+
+            Console.WriteLine($"Bearer {token}");
             headers.Add("Authorization", $"Bearer {token}");
 
             var response = realtyServiceClient.GetRealtyList(new RealtyListRequest { Type = RealtyType.Any }, headers);
@@ -83,6 +78,26 @@ namespace GrpcClient
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken("RealtyJwtServer", "ExampleClients", claims, expires: DateTime.Now.AddDays(1), signingCredentials: credentials);
             return JwtTokenHandler.WriteToken(token);
+        }
+
+        private static GrpcChannel CreateSimpleChannel()
+        {
+            var channel = GrpcChannel.ForAddress(ServerAddress);
+            return channel;
+        }
+
+        private static GrpcChannel CreateSerteficeteChannel()
+        {
+
+            var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+            var certeficate = new X509Certificate2(basePath + "/Certs/testCert.pfx", "test");
+
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            httpClientHandler.ClientCertificates.Add(certeficate);
+            var httpClient = new HttpClient(httpClientHandler);
+            var channel = GrpcChannel.ForAddress(ServerAddress, new GrpcChannelOptions { HttpClient = httpClient });
+            return channel;
         }
     }
 }

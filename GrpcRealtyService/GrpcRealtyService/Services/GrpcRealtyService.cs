@@ -2,9 +2,7 @@
 using Grpc.Core;
 using GrpcRealtyService.Internals;
 using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace GrpcRealtyService.Services
@@ -12,14 +10,17 @@ namespace GrpcRealtyService.Services
     public class GrpcRealtyService : DowntownRealty.DowntownRealty.DowntownRealtyBase
     {
         IRealtyService _realtyService;
+        ILogger<GrpcRealtyService> _logger;
 
-        public GrpcRealtyService(IRealtyService realtyService)
+        public GrpcRealtyService(IRealtyService realtyService, ILogger<GrpcRealtyService> logger)
         {
+            _logger = logger;
             _realtyService = realtyService;
         }
 
         public override Task<RealtyResponse> GetRealtyById(RealtyRequest request, ServerCallContext context)
         {
+            _logger.LogWarning("grpc service called!");
             var result = _realtyService.GetRealtyById((int)request.Id);
             return Task.FromResult(new RealtyResponse
             {

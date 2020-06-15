@@ -26,6 +26,7 @@ namespace GrpcRealtyService
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
+
             services.AddGrpcReflection();
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,9 +56,12 @@ namespace GrpcRealtyService
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseRouting();
+
+            //GrpcWeb
             app.UseGrpcWeb();
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("MyPolicy");
@@ -65,8 +69,12 @@ namespace GrpcRealtyService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapGrpcService<Services.GrpcRealtyService>().EnableGrpcWeb();
+
+                endpoints.MapGrpcService<Services.GrpcRealtyService>()
+                                .EnableGrpcWeb();
+
                 endpoints.MapGrpcReflectionService();
+
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Just another one gRPC service.");
